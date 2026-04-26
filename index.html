@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notsify</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #12121a;
+      --bg3: #1a1a26;
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f0f8;
+      --text2: #8888aa;
+      --grad1: linear-gradient(135deg, #667eea, #764ba2);
+      --grad2: linear-gradient(135deg, #f093fb, #f5576c);
+      --grad3: linear-gradient(135deg, #4facfe, #00f2fe);
+      --grad4: linear-gradient(135deg, #43e97b, #38f9d7);
+      --grad5: linear-gradient(135deg, #fa709a, #fee140);
+      --accent: #667eea;
+      --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ========== AUTH ========== */
+    #auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(ellipse at 20% 50%, rgba(102,126,234,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(240,147,251,0.1) 0%, transparent 50%),
+                  var(--bg);
+    }
+    .auth-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    }
+    .auth-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--grad1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .auth-sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 32px; }
+    .auth-tabs { display: flex; gap: 8px; margin-bottom: 28px; }
+    .auth-tab {
+      flex: 1; padding: 10px; border: 1px solid var(--border);
+      border-radius: 10px; background: transparent; color: var(--text2);
+      cursor: pointer; font-family: inherit; font-size: 0.9rem; transition: all 0.2s;
+    }
+    .auth-tab.active {
+      background: var(--grad1); border-color: transparent; color: white; font-weight: 600;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 6px; }
+    .form-group input {
+      width: 100%; padding: 12px 16px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-family: inherit;
+      font-size: 0.95rem; outline: none; transition: border-color 0.2s;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+    .btn-primary {
+      width: 100%; padding: 14px;
+      background: var(--grad1); border: none; border-radius: 12px;
+      color: white; font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .auth-msg { font-size: 0.85rem; margin-top: 12px; text-align: center; min-height: 20px; }
+    .auth-msg.error { color: #f5576c; }
+    .auth-msg.success { color: #43e97b; }
+
+    /* ========== APP ========== */
+    #app-screen { display: none; min-height: 100vh; }
+
+    /* NAV */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,10,15,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800;
+      background: var(--grad1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-user { font-size: 0.85rem; color: var(--text2); }
+    .btn-logout {
+      padding: 7px 16px; background: transparent;
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text2); cursor: pointer; font-family: inherit;
+      font-size: 0.82rem; transition: all 0.2s;
+    }
+    .btn-logout:hover { border-color: #f5576c; color: #f5576c; }
+
+    /* TABS */
+    .tab-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex; padding: 8px 0 12px;
+    }
+    .tab-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      gap: 4px; background: none; border: none; color: var(--text2);
+      cursor: pointer; font-family: inherit; font-size: 0.7rem;
+      transition: color 0.2s; padding: 6px 0;
+    }
+    .tab-btn.active { color: var(--accent); }
+    .tab-btn svg { width: 22px; height: 22px; }
+    .tab-btn .tab-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--accent); opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .tab-btn.active .tab-dot { opacity: 1; }
+
+    /* MAIN CONTENT */
+    .main { padding: 80px 20px 100px; max-width: 680px; margin: 0 auto; }
+
+    /* PAGE */
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-title {
+      font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800;
+      margin-bottom: 24px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+
+    /* ADD FORM */
+    .add-form {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; margin-bottom: 24px;
+    }
+    .add-form h3 { font-size: 1rem; margin-bottom: 16px; color: var(--text2); }
+    .input-field {
+      width: 100%; padding: 12px 14px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-family: inherit;
+      font-size: 0.95rem; outline: none; margin-bottom: 10px;
+      transition: border-color 0.2s; resize: vertical;
+    }
+    .input-field:focus { border-color: var(--accent); }
+    textarea.input-field { min-height: 100px; }
+    .btn-add {
+      padding: 10px 20px; border: none; border-radius: 10px;
+      color: white; font-family: inherit; font-size: 0.9rem;
+      font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-add:hover { opacity: 0.85; }
+
+    /* NOTE CARD */
+    .note-card-img {
+      width: 100%; max-height: 200px; object-fit: cover;
+      border-radius: 10px; margin-bottom: 12px;
+    }
+    .note-title { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .note-content { font-size: 0.88rem; color: var(--text2); line-height: 1.6; }
+    .note-date { font-size: 0.75rem; color: var(--text2); margin-top: 10px; opacity: 0.6; }
+    .note-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-delete {
+      padding: 6px 14px; background: rgba(245,87,108,0.1);
+      border: 1px solid rgba(245,87,108,0.3); border-radius: 8px;
+      color: #f5576c; cursor: pointer; font-family: inherit;
+      font-size: 0.8rem; transition: all 0.2s;
+    }
+    .btn-delete:hover { background: rgba(245,87,108,0.2); }
+
+    /* GRADIENT TAGS */
+    .grad-tag {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600; color: white;
+    }
+
+    /* ROUTINE */
+    .routine-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .routine-item:last-child { border-bottom: none; }
+    .routine-check {
+      width: 26px; height: 26px; border-radius: 8px;
+      border: 2px solid var(--border); background: transparent;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; transition: all 0.2s; flex-shrink: 0;
+    }
+    .routine-check.done {
+      background: var(--grad4); border-color: transparent;
+    }
+    .routine-check.done::after { content: '✓'; color: white; font-size: 14px; font-weight: 700; }
+    .routine-name { flex: 1; font-size: 0.95rem; }
+    .routine-name.done { text-decoration: line-through; color: var(--text2); }
+
+    /* WEEKLY VIEW */
+    .week-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 6px; margin-top: 10px;
+    }
+    .week-day { text-align: center; }
+    .week-day-label { font-size: 0.65rem; color: var(--text2); margin-bottom: 4px; }
+    .week-day-dot {
+      width: 28px; height: 28px; border-radius: 8px;
+      margin: 0 auto; display: flex; align-items: center;
+      justify-content: center; font-size: 0.7rem;
+    }
+    .week-day-dot.done { background: var(--grad4); }
+    .week-day-dot.missed { background: var(--bg3); color: var(--text2); }
+    .week-day-dot.today { border: 2px solid var(--accent); }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; text-align: center;
+    }
+    .stat-number {
+      font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+      background: var(--grad3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--text2); margin-top: 4px; }
+
+    /* EMPTY STATE */
+    .empty { text-align: center; padding: 48px 20px; color: var(--text2); }
+    .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-text { font-size: 0.9rem; }
+
+    /* FILE INPUT */
+    .file-label {
+      display: inline-block; padding: 9px 18px;
+      background: var(--bg3); border: 1px dashed var(--border);
+      border-radius: 10px; cursor: pointer; font-size: 0.85rem;
+      color: var(--text2); transition: border-color 0.2s; margin-bottom: 10px;
+    }
+    .file-label:hover { border-color: var(--accent); color: var(--text); }
+    #file-input { display: none; }
+
+    /* VIEW TOGGLE */
+    .view-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
+    .view-btn {
+      padding: 8px 18px; border-radius: 10px; border: 1px solid var(--border);
+      background: transparent; color: var(--text2); cursor: pointer;
+      font-family: inherit; font-size: 0.85rem; transition: all 0.2s;
+    }
+    .view-btn.active { background: var(--grad1); border-color: transparent; color: white; font-weight: 600; }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 40px; color: var(--text2); font-size: 0.9rem; }
+
+    @media (max-width: 480px) {
+      .auth-box { padding: 32px 24px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">Notsify</div>
+    <div class="auth-sub">Günlüğün, rutinlerin, anların.</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Giriş Yap</button>
+      <button class="auth-tab" onclick="switchTab('register')">Kayıt Ol</button>
+    </div>
+    <div id="login-form">
+      <div class="form-group">
+        <label>E-posta</label>
+        <input type="email" id="login-email" placeholder="email@example.com"/>
+      </div>
+      <div class="form-group">
+        <label>Şifre</label>
+        <input type="password" id="login-password" placeholder="••••••••"/>
+      </div>
+      <button class="btn-primary" onclick="login()">Giriş Yap</button>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="form-group">
+        <label>Kullanıcı Adı</label>
+        <input type="text" id="reg-username" placeholder="kullanici_adi"/>
+      </div>
+      <div class="form-group">
+        <label>Ad Soyad</label>
+        <input type="text" id="reg-fullname" placeholder="Ad Soyad"/>
+      </div>
+      <div class="form-group">
+        <label>E-posta</label>
+        <input type="email" id="reg-email" placeholder="email@example.com"/>
+      </div>
+      <div class="form-group">
+        <label>Şifre</label>
+        <input type="password" id="reg-password" placeholder="En az 6 karakter"/>
+      </div>
+      <button class="btn-primary" onclick="register()">Kayıt Ol</button>
+    </div>
+    <div class="auth-msg" id="auth-msg"></div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="app-screen">
+  <nav class="nav">
+    <div class="nav-logo">Notsify</div>
+    <div class="nav-right">
+      <span class="nav-user" id="nav-username"></span>
+      <button class="btn-logout" onclick="logout()">Çıkış</button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <!-- NOTES PAGE -->
+    <div class="page active" id="page-notes">
+      <div class="page-title">📝 Notlarım</div>
+      <div class="add-form">
+        <h3>Yeni Not Ekle</h3>
+        <input class="input-field" id="note-title" placeholder="Başlık..." />
+        <textarea class="input-field" id="note-content" placeholder="Ne düşünüyorsun?"></textarea>
+        <label class="file-label" for="file-input">📷 Fotoğraf Ekle</label>
+        <input type="file" id="file-input" accept="image/*" onchange="previewFile(this)"/>
+        <div id="file-preview"></div>
+        <button class="btn-add" style="background: var(--grad1);" onclick="addNote()">Not Ekle</button>
+      </div>
+      <div id="notes-list"><div class="loading">Yükleniyor...</div></div>
+    </div>
+
+    <!-- ROUTINES PAGE -->
+    <div class="page" id="page-routines">
+      <div class="page-title">✅ Rutinlerim</div>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setRoutineView('daily')">Günlük</button>
+        <button class="view-btn" onclick="setRoutineView('weekly')">Haftalık</button>
+      </div>
+      <div class="add-form">
+        <h3>Yeni Rutin Ekle</h3>
+        <input class="input-field" id="routine-name" placeholder="Rutin adı... (Spor, Su iç, Kitap oku...)"/>
+        <button class="btn-add" style="background: var(--grad4);" onclick="addRoutine()">Rutin Ekle</button>
+      </div>
+      <div id="routines-list"><div class="loading">Yükleniyor...</div></div>
+    </div>
+
+    <!-- STATS PAGE -->
+    <div class="page" id="page-stats">
+      <div class="page-title">📊 İstatistikler</div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="stat-notes">-</div>
+          <div class="stat-label">Toplam Not</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-routines">-</div>
+          <div class="stat-label">Aktif Rutin</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-today">-</div>
+          <div class="stat-label">Bugün Tamamlanan</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-week">-</div>
+          <div class="stat-label">Bu Hafta %</div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:600; margin-bottom:16px;">Bu Haftanın Özeti</div>
+        <div id="weekly-summary"><div class="loading">Yükleniyor...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchPage('notes', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Notlar
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab-btn" onclick="switchPage('routines', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Rutinler
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab-btn" onclick="switchPage('stats', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      İstatistik
+      <div class="tab-dot"></div>
+    </button>
+  </div>
+</div>
+
+<script>
+  // ===== CONFIG =====
+  const SUPABASE_URL = 'https://ehyvgpmaxifnjgwiamfc.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeXZncG1heGlmbmpnd2lhbWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDEzMDUsImV4cCI6MjA5Mjc3NzMwNX0.HyjYzcz64-4Eczxo1OhRjqXtTBr6DqBFpvrTHGPCNrI';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentUser = null;
+  let currentProfile = null;
+  let routineView = 'daily';
+  let allRoutines = [];
+  let selectedFile = null;
+
+  // ===== AUTH =====
+  function switchTab(tab) {
+    document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+    document.querySelectorAll('.auth-tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+    });
+    document.getElementById('auth-msg').textContent = '';
+  }
+
+  function showMsg(msg, type) {
+    const el = document.getElementById('auth-msg');
+    el.textContent = msg;
+    el.className = 'auth-msg ' + type;
+  }
+
+  async function login() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-password').value;
+    if (!email || !pass) return showMsg('E-posta ve şifre giriniz.', 'error');
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) return showMsg('Hata: ' + error.message, 'error');
+  }
+
+  async function register() {
+    const username = document.getElementById('reg-username').value.trim();
+    const fullname = document.getElementById('reg-fullname').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass = document.getElementById('reg-password').value;
+    if (!username || !email || !pass) return showMsg('Tüm alanları doldurunuz.', 'error');
+    if (pass.length < 6) return showMsg('Şifre en az 6 karakter olmalı.', 'error');
+    const { error } = await sb.auth.signUp({
+      email, password: pass,
+      options: { data: { username, full_name: fullname } }
+    });
+    if (error) return showMsg('Hata: ' + error.message, 'error');
+    showMsg('Kayıt başarılı! Giriş yapılıyor...', 'success');
+  }
+
+  async function logout() {
+    await sb.auth.signOut();
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+    currentUser = null; currentProfile = null;
+  }
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (session?.user) {
+      currentUser = session.user;
+      await loadProfile();
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+      loadNotes(); loadRoutines(); loadStats();
+    }
+  });
+
+  async function loadProfile() {
+    const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    currentProfile = data;
+    document.getElementById('nav-username').textContent = data?.username || currentUser.email;
+  }
+
+  // ===== NAVIGATION =====
+  function switchPage(page, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    btn.classList.add('active');
+    if (page === 'stats') loadStats();
+  }
+
+  // ===== NOTES =====
+  function previewFile(input) {
+    selectedFile = input.files[0];
+    const preview = document.getElementById('file-preview');
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      preview.innerHTML = `<img src="${url}" style="max-height:120px; border-radius:10px; margin-bottom:10px;"/>`;
+    }
+  }
+
+  async function addNote() {
+    const title = document.getElementById('note-title').value.trim();
+    const content = document.getElementById('note-content').value.trim();
+    if (!title) return alert('Başlık giriniz!');
+    let image_url = null;
+    if (selectedFile) {
+      const ext = selectedFile.name.split('.').pop();
+      const path = `${currentUser.id}/${Date.now()}.${ext}`;
+      const { error: upErr } = await sb.storage.from('notes-images').upload(path, selectedFile);
+      if (!upErr) {
+        const { data } = sb.storage.from('notes-images').getPublicUrl(path);
+        image_url = data.publicUrl;
+      }
+    }
+    const { error } = await sb.from('notes').insert({ user_id: currentUser.id, title, content, image_url });
+    if (error) return alert('Hata: ' + error.message);
+    document.getElementById('note-title').value = '';
+    document.getElementById('note-content').value = '';
+    document.getElementById('file-preview').innerHTML = '';
+    document.getElementById('file-input').value = '';
+    selectedFile = null;
+    loadNotes();
+  }
+
+  async function loadNotes() {
+    const { data, error } = await sb.from('notes').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    const list = document.getElementById('notes-list');
+    if (error || !data?.length) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Henüz not yok. İlk notunu ekle!</div></div>`;
+      return;
+    }
+    list.innerHTML = data.map(note => `
+      <div class="card">
+        ${note.image_url ? `<img class="note-card-img" src="${note.image_url}" alt=""/>` : ''}
+        <div class="note-title">${note.title}</div>
+        ${note.content ? `<div class="note-content">${note.content}</div>` : ''}
+        <div class="note-date">${new Date(note.created_at).toLocaleDateString('tr-TR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="note-actions">
+          <button class="btn-delete" onclick="deleteNote('${note.id}')">🗑 Sil</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function deleteNote(id) {
+    if (!confirm('Bu notu silmek istediğine emin misin?')) return;
+    await sb.from('notes').delete().eq('id', id);
+    loadNotes();
+  }
+
+  // ===== ROUTINES =====
+  function setRoutineView(view) {
+    routineView = view;
+    document.querySelectorAll('.view-btn').forEach((b, i) => {
+      b.classList.toggle('active', (i === 0 && view === 'daily') || (i === 1 && view === 'weekly'));
+    });
+    renderRoutines();
+  }
+
+  async function addRoutine() {
+    const name = document.getElementById('routine-name').value.trim();
+    if (!name) return alert('Rutin adı giriniz!');
+    const { error } = await sb.from('routines').insert({ user_id: currentUser.id, name });
+    if (error) return alert('Hata: ' + error.message);
+    document.getElementById('routine-name').value = '';
+    loadRoutines();
+  }
+
+  async function loadRoutines() {
+    const { data } = await sb.from('routines').select('*').eq('user_id', currentUser.id).order('created_at');
+    allRoutines = data || [];
+    renderRoutines();
+  }
+
+  async function renderRoutines() {
+    const list = document.getElementById('routines-list');
+    if (!allRoutines.length) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Henüz rutin yok. İlk rutinini ekle!</div></div>`;
+      return;
+    }
+    if (routineView === 'daily') {
+      await renderDailyRoutines(list);
+    } else {
+      await renderWeeklyRoutines(list);
+    }
+  }
+
+  async function renderDailyRoutines(list) {
+    const today = new Date().toISOString().split('T')[0];
+    const ids = allRoutines.map(r => r.id);
+    const { data: logs } = await sb.from('routine_logs').select('*')
+      .in('routine_id', ids).eq('date', today);
+    const doneMap = {};
+    (logs || []).forEach(l => doneMap[l.routine_id] = { done: l.done, id: l.id });
+
+    list.innerHTML = `<div class="card">${allRoutines.map(r => {
+      const isDone = doneMap[r.id]?.done;
+      return `
+        <div class="routine-item">
+          <div class="routine-check ${isDone ? 'done' : ''}" onclick="toggleRoutine('${r.id}', ${isDone}, '${doneMap[r.id]?.id || ''}')"></div>
+          <div class="routine-name ${isDone ? 'done' : ''}">${r.name}</div>
+          <button class="btn-delete" onclick="deleteRoutine('${r.id}')">🗑</button>
+        </div>`;
+    }).join('')}</div>`;
+  }
+
+  async function renderWeeklyRoutines(list) {
+    const days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+    const today = new Date();
+    const weekDates = [];
+    const dow = (today.getDay() + 6) % 7;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - dow + i);
+      weekDates.push(d.toISOString().split('T')[0]);
+    }
+    const ids = allRoutines.map(r => r.id);
+    const { data: logs } = await sb.from('routine_logs').select('*')
+      .in('routine_id', ids).in('date', weekDates);
+    const logMap = {};
+    (logs || []).forEach(l => { if (!logMap[l.routine_id]) logMap[l.routine_id] = {}; logMap[l.routine_id][l.date] = l.done; });
+    const todayStr = today.toISOString().split('T')[0];
+
+    list.innerHTML = allRoutines.map(r => {
+      const doneDays = weekDates.filter(d => logMap[r.id]?.[d]).length;
+      return `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="font-weight:600">${r.name}</span>
+          <span class="grad-tag" style="background:var(--grad4)">${doneDays}/7</span>
+        </div>
+        <div class="week-grid">
+          ${weekDates.map((d, i) => {
+            const done = logMap[r.id]?.[d];
+            const isToday = d === todayStr;
+            return `<div class="week-day">
+              <div class="week-day-label">${days[i]}</div>
+              <div class="week-day-dot ${done ? 'done' : 'missed'} ${isToday ? 'today' : ''}">${done ? '✓' : ''}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function toggleRoutine(routineId, isDone, logId) {
+    const today = new Date().toISOString().split('T')[0];
+    if (logId) {
+      await sb.from('routine_logs').update({ done: !isDone }).eq('id', logId);
+    } else {
+      await sb.from('routine_logs').insert({ routine_id: routineId, user_id: currentUser.id, date: today, done: true });
+    }
+    loadRoutines();
+  }
+
+  async function deleteRoutine(id) {
+    if (!confirm('Bu rutini silmek istediğine emin misin?')) return;
+    await sb.from('routines').delete().eq('id', id);
+    loadRoutines();
+  }
+
+  // ===== STATS =====
+  async function loadStats() {
+    const today = new Date().toISOString().split('T')[0];
+    const dow = (new Date().getDay() + 6) % 7;
+    const weekStart = new Date(); weekStart.setDate(new Date().getDate() - dow);
+    const weekStartStr = weekStart.toISOString().split('T')[0];
+
+    const [{ count: noteCount }, { data: routines }] = await Promise.all([
+      sb.from('notes').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id),
+      sb.from('routines').select('*').eq('user_id', currentUser.id)
+    ]);
+
+    document.getElementById('stat-notes').textContent = noteCount || 0;
+    document.getElementById('stat-routines').textContent = routines?.length || 0;
+
+    if (routines?.length) {
+      const ids = routines.map(r => r.id);
+      const { data: todayLogs } = await sb.from('routine_logs').select('*').in('routine_id', ids).eq('date', today).eq('done', true);
+      const { data: weekLogs } = await sb.from('routine_logs').select('*').in('routine_id', ids).gte('date', weekStartStr).eq('done', true);
+      document.getElementById('stat-today').textContent = todayLogs?.length || 0;
+      const maxWeek = routines.length * 7;
+      const pct = maxWeek > 0 ? Math.round(((weekLogs?.length || 0) / maxWeek) * 100) : 0;
+      document.getElementById('stat-week').textContent = pct + '%';
+      renderWeeklySummary(routines, weekLogs || [], weekStartStr);
+    } else {
+      document.getElementById('stat-today').textContent = 0;
+      document.getElementById('stat-week').textContent = '0%';
+      document.getElementById('weekly-summary').innerHTML = '<div class="empty-text">Henüz rutin yok.</div>';
+    }
+  }
+
+  function renderWeeklySummary(routines, logs, weekStart) {
+    const logMap = {};
+    logs.forEach(l => { if (!logMap[l.routine_id]) logMap[l.routine_id] = 0; logMap[l.routine_id]++; });
+    const summary = document.getElementById('weekly-summary');
+    summary.innerHTML = routines.map(r => {
+      const count = logMap[r.id] || 0;
+      const pct = Math.round((count / 7) * 100);
+      const color = pct >= 70 ? 'var(--grad4)' : pct >= 40 ? 'var(--grad3)' : 'var(--grad2)';
+      return `<div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:0.9rem">${r.name}</span>
+          <span style="font-size:0.8rem;color:var(--text2)">${count}/7 gün</span>
+        </div>
+        <div style="height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:width 0.5s;"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+</script>
+</body>
+</html>
