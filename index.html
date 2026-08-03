@@ -133,6 +133,20 @@
     .view-btn.active { background: var(--grad1); border-color: transparent; color: white; font-weight: 600; }
     .loading { text-align: center; padding: 40px; color: var(--text2); font-size: 0.9rem; }
     @media (max-width: 480px) { .auth-box { padding: 32px 24px; } }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 28px; width: 100%; max-width: 340px; box-shadow: 0 40px 80px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s; }
+    .modal-overlay.open .modal-box { transform: scale(1); }
+    .modal-icon { font-size: 2.5rem; text-align: center; margin-bottom: 12px; }
+    .modal-title { font-size: 1.1rem; font-weight: 700; text-align: center; margin-bottom: 8px; }
+    .modal-text { font-size: 0.88rem; color: var(--text2); text-align: center; margin-bottom: 24px; line-height: 1.5; }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-family: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    .modal-btn:hover { opacity: 0.85; }
+    .modal-btn.cancel { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+    .modal-btn.confirm { background: var(--grad2); color: white; }
   </style>
 </head>
 <body>
@@ -349,11 +363,16 @@
     const pin = document.getElementById('login-pin').value.trim();
     if (!username || !pin) return showMsg('Kullanıcı adı ve PIN giriniz.', 'error');
     if (pin.length !== 4 || !/^\d+$/.test(pin)) return showMsg('PIN 4 haneli rakam olmalı.', 'error');
-    const { data, error } = await sb.from('users').select('*').eq('username', username).eq('pin', pin).single();
-    if (error || !data) return showMsg('Kullanıcı adı veya PIN hatalı.', 'error');
-    currentUser = data;
-    localStorage.setItem('notsify_user', JSON.stringify(data));
-    startApp(data);
+    showMsg('Giriş yapılıyor...', 'success');
+    try {
+      const { data, error } = await sb.from('users').select('*').eq('username', username).eq('pin', pin).single();
+      if (error || !data) return showMsg('Kullanıcı adı veya PIN hatalı.', 'error');
+      currentUser = data;
+      localStorage.setItem('notsify_user', JSON.stringify(data));
+      startApp(data);
+    } catch (err) {
+      showMsg('Bağlantı hatası: ' + err.message, 'error');
+    }
   }
 
   async function register() {
@@ -364,13 +383,18 @@
     if (pin.length !== 4 || !/^\d+$/.test(pin)) return showMsg('PIN 4 haneli rakam olmalı.', 'error');
     if (pin !== pin2) return showMsg('PIN\'ler eşleşmiyor.', 'error');
     if (username.length < 2) return showMsg('Kullanıcı adı en az 2 karakter olmalı.', 'error');
-    const { data: existing } = await sb.from('users').select('id').eq('username', username).single();
-    if (existing) return showMsg('Bu kullanıcı adı zaten alınmış.', 'error');
-    const { data, error } = await sb.from('users').insert({ username, pin }).select().single();
-    if (error) return showMsg('Hata: ' + error.message, 'error');
-    currentUser = data;
-    localStorage.setItem('notsify_user', JSON.stringify(data));
-    startApp(data);
+    showMsg('Kayıt oluşturuluyor...', 'success');
+    try {
+      const { data: existing } = await sb.from('users').select('id').eq('username', username).single();
+      if (existing) return showMsg('Bu kullanıcı adı zaten alınmış.', 'error');
+      const { data, error } = await sb.from('users').insert({ username, pin }).select().single();
+      if (error) return showMsg('Hata: ' + error.message, 'error');
+      currentUser = data;
+      localStorage.setItem('notsify_user', JSON.stringify(data));
+      startApp(data);
+    } catch (err) {
+      showMsg('Bağlantı hatası: ' + err.message, 'error');
+    }
   }
 
   function startApp(user) {
