@@ -475,21 +475,38 @@
     loadNotes();
   }
 
+  let allNotes = [];
+
   async function loadNotes() {
     const { data, error } = await sb.from('notes').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
     const list = document.getElementById('notes-list');
-    if (error || !data?.length) {
+    allNotes = data || [];
+    if (error || !allNotes.length) {
       list.innerHTML = `<div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Henüz not yok. İlk notunu ekle!</div></div>`;
       return;
     }
-    list.innerHTML = data.map(note => `
-      <div class="card">
+    list.innerHTML = allNotes.map(note => `
+      <div class="card" onclick="openNote('${note.id}')" style="cursor:pointer;">
         ${note.image_url ? `<img class="note-card-img" src="${note.image_url}" alt=""/>` : ''}
         <div class="note-title">${note.title}</div>
-        ${note.content ? `<div class="note-content">${note.content}</div>` : ''}
+        ${note.content ? `<div class="note-content">${note.content.length > 100 ? note.content.slice(0,100)+'…' : note.content}</div>` : ''}
         <div class="note-date">${new Date(note.created_at).toLocaleDateString('tr-TR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
-        <div class="note-actions"><button class="btn-delete" onclick="deleteNote('${note.id}')">🗑 Sil</button></div>
       </div>`).join('');
+  }
+
+  function openNote(id) {
+    const note = allNotes.find(n => n.id === id);
+    if (!note) return;
+    document.getElementById('note-detail-img-wrap').innerHTML = note.image_url ? `<img src="${note.image_url}" style="width:100%;border-radius:14px;margin-bottom:16px;"/>` : '';
+    document.getElementById('note-detail-title').textContent = note.title;
+    document.getElementById('note-detail-content').textContent = note.content || '';
+    document.getElementById('note-detail-date').textContent = new Date(note.created_at).toLocaleDateString('tr-TR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    document.getElementById('note-detail-delete').setAttribute('onclick', `deleteNote('${note.id}'); closeNoteDetail();`);
+    document.getElementById('note-detail-overlay').classList.add('open');
+  }
+
+  function closeNoteDetail() {
+    document.getElementById('note-detail-overlay').classList.remove('open');
   }
 
   async function deleteNote(id) {
@@ -663,6 +680,20 @@
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeModal()">Vazgeç</button>
       <button class="modal-btn confirm" onclick="confirmModal()">Evet, Sil</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTE DETAIL -->
+<div class="modal-overlay" id="note-detail-overlay" onclick="if(event.target===this)closeNoteDetail()">
+  <div class="modal-box" style="max-width:480px; max-height:85vh; overflow-y:auto; text-align:left;">
+    <div id="note-detail-img-wrap"></div>
+    <div style="font-size:1.3rem; font-weight:700; margin-bottom:8px;" id="note-detail-title"></div>
+    <div style="font-size:0.95rem; color:var(--text2); line-height:1.7; white-space:pre-wrap; margin-bottom:16px;" id="note-detail-content"></div>
+    <div style="font-size:0.78rem; color:var(--text2); opacity:0.6; margin-bottom:20px;" id="note-detail-date"></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeNoteDetail()">Kapat</button>
+      <button class="modal-btn confirm" id="note-detail-delete" style="background: var(--grad2);">🗑 Sil</button>
     </div>
   </div>
 </div>
