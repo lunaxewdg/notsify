@@ -103,6 +103,12 @@
     .btn-delete { padding: 6px 14px; background: rgba(245,87,108,0.1); border: 1px solid rgba(245,87,108,0.3); border-radius: 8px; color: #f5576c; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: all 0.2s; }
     .btn-delete:hover { background: rgba(245,87,108,0.2); }
 
+    .pin-btn { position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 0.95rem; opacity: 0.5; transition: all 0.2s; }
+    .pin-btn:hover { opacity: 1; }
+    .pin-btn.active { opacity: 1; background: var(--grad4); border-color: transparent; transform: rotate(-10deg); }
+    .pinned-card { border-color: rgba(67,233,123,0.4); }
+    .pinned-routine { background: rgba(67,233,123,0.05); border-radius: 10px; margin: 0 -8px; padding-left: 8px; padding-right: 8px; }
+
     .grad-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: white; }
     .routine-item { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .routine-item:last-child { border-bottom: none; }
@@ -478,7 +484,7 @@
   let allNotes = [];
 
   async function loadNotes() {
-    const { data, error } = await sb.from('notes').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    const { data, error } = await sb.from('notes').select('*').eq('user_id', currentUser.id).order('pinned', { ascending: false }).order('created_at', { ascending: false });
     const list = document.getElementById('notes-list');
     allNotes = data || [];
     if (error || !allNotes.length) {
@@ -486,7 +492,8 @@
       return;
     }
     list.innerHTML = allNotes.map(note => `
-      <div class="card" onclick="openNote('${note.id}')" style="cursor:pointer;">
+      <div class="card ${note.pinned ? 'pinned-card' : ''}" onclick="openNote('${note.id}')" style="cursor:pointer; position:relative;">
+        <button class="pin-btn ${note.pinned ? 'active' : ''}" onclick="event.stopPropagation(); toggleNotePin('${note.id}', ${!!note.pinned})" title="Sabitle">📌</button>
         ${note.image_url ? `<img class="note-card-img" src="${note.image_url}" alt=""/>` : ''}
         <div class="note-title">${note.title}</div>
         ${note.content ? `<div class="note-content">${note.content.length > 100 ? note.content.slice(0,100)+'…' : note.content}</div>` : ''}
@@ -494,15 +501,52 @@
       </div>`).join('');
   }
 
+  async function toggleNotePin(id, current) {
+    await sb.from('notes').update({ pinned: !current }).eq('id', id);
+    loadNotes();
+  }
+
+  let editingNote = false;
+
   function openNote(id) {
     const note = allNotes.find(n => n.id === id);
     if (!note) return;
+    editingNote = false;
     document.getElementById('note-detail-img-wrap').innerHTML = note.image_url ? `<img src="${note.image_url}" style="width:100%;border-radius:14px;margin-bottom:16px;"/>` : '';
     document.getElementById('note-detail-title').textContent = note.title;
     document.getElementById('note-detail-content').textContent = note.content || '';
+    document.getElementById('note-detail-title-input').value = note.title;
+    document.getElementById('note-detail-content-input').value = note.content || '';
     document.getElementById('note-detail-date').textContent = new Date(note.created_at).toLocaleDateString('tr-TR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
     document.getElementById('note-detail-delete').setAttribute('onclick', `deleteNote('${note.id}'); closeNoteDetail();`);
+    document.getElementById('note-detail-edit').setAttribute('onclick', `startEditNote('${note.id}')`);
+    document.getElementById('note-detail-save').setAttribute('onclick', `saveEditNote('${note.id}')`);
+    setNoteEditMode(false);
     document.getElementById('note-detail-overlay').classList.add('open');
+  }
+
+  function setNoteEditMode(on) {
+    editingNote = on;
+    document.getElementById('note-detail-title').style.display = on ? 'none' : 'block';
+    document.getElementById('note-detail-content').style.display = on ? 'none' : 'block';
+    document.getElementById('note-detail-title-input').style.display = on ? 'block' : 'none';
+    document.getElementById('note-detail-content-input').style.display = on ? 'block' : 'none';
+    document.getElementById('note-detail-edit').style.display = on ? 'none' : 'inline-block';
+    document.getElementById('note-detail-save').style.display = on ? 'inline-block' : 'none';
+    document.getElementById('note-detail-delete').style.display = on ? 'none' : 'inline-block';
+  }
+
+  function startEditNote(id) {
+    setNoteEditMode(true);
+  }
+
+  async function saveEditNote(id) {
+    const title = document.getElementById('note-detail-title-input').value.trim();
+    const content = document.getElementById('note-detail-content-input').value.trim();
+    if (!title) return alert('Başlık boş olamaz!');
+    await sb.from('notes').update({ title, content }).eq('id', id);
+    await loadNotes();
+    closeNoteDetail();
   }
 
   function closeNoteDetail() {
@@ -532,8 +576,34 @@
     loadRoutines();
   }
 
+  async function toggleRoutinePin(id, current) {
+    await sb.from('routines').update({ pinned: !current }).eq('id', id);
+    loadRoutines();
+  }
+
+  let editingRoutineId = null;
+
+  function startEditRoutine(id) {
+    editingRoutineId = id;
+    renderRoutines();
+  }
+
+  async function saveEditRoutine(id) {
+    const input = document.getElementById('routine-edit-input-' + id);
+    const name = input.value.trim();
+    if (!name) return alert('Rutin adı boş olamaz!');
+    await sb.from('routines').update({ name }).eq('id', id);
+    editingRoutineId = null;
+    loadRoutines();
+  }
+
+  function cancelEditRoutine() {
+    editingRoutineId = null;
+    renderRoutines();
+  }
+
   async function loadRoutines() {
-    const { data } = await sb.from('routines').select('*').eq('user_id', currentUser.id).order('created_at');
+    const { data } = await sb.from('routines').select('*').eq('user_id', currentUser.id).order('pinned', { ascending: false }).order('created_at');
     allRoutines = data || [];
     renderRoutines();
   }
@@ -556,9 +626,18 @@
     (logs || []).forEach(l => doneMap[l.routine_id] = { done: l.done, id: l.id });
     list.innerHTML = `<div class="card">${allRoutines.map(r => {
       const isDone = doneMap[r.id]?.done;
-      return `<div class="routine-item">
+      if (editingRoutineId === r.id) {
+        return `<div class="routine-item">
+          <input class="input-field" id="routine-edit-input-${r.id}" value="${r.name.replace(/"/g,'&quot;')}" style="margin-bottom:0; flex:1;" onkeydown="if(event.key==='Enter')saveEditRoutine('${r.id}')"/>
+          <button class="nav-icon-btn" onclick="saveEditRoutine('${r.id}')" title="Kaydet">✅</button>
+          <button class="nav-icon-btn" onclick="cancelEditRoutine()" title="Vazgeç">✖️</button>
+        </div>`;
+      }
+      return `<div class="routine-item ${r.pinned ? 'pinned-routine' : ''}">
         <div class="routine-check ${isDone?'done':''}" onclick="toggleRoutine('${r.id}',${isDone},'${doneMap[r.id]?.id||''}')"></div>
-        <div class="routine-name ${isDone?'done':''}">${r.name}</div>
+        <div class="routine-name ${isDone?'done':''}">${r.pinned ? '📌 ' : ''}${r.name}</div>
+        <button class="nav-icon-btn" onclick="toggleRoutinePin('${r.id}', ${!!r.pinned})" title="Sabitle">📌</button>
+        <button class="nav-icon-btn" onclick="startEditRoutine('${r.id}')" title="Düzenle">✏️</button>
         <button class="btn-delete" onclick="deleteRoutine('${r.id}')">🗑</button>
       </div>`;
     }).join('')}</div>`;
@@ -690,9 +769,13 @@
     <div id="note-detail-img-wrap"></div>
     <div style="font-size:1.3rem; font-weight:700; margin-bottom:8px;" id="note-detail-title"></div>
     <div style="font-size:0.95rem; color:var(--text2); line-height:1.7; white-space:pre-wrap; margin-bottom:16px;" id="note-detail-content"></div>
+    <input class="input-field" id="note-detail-title-input" style="display:none; font-weight:700; font-size:1.05rem;"/>
+    <textarea class="input-field" id="note-detail-content-input" style="display:none; min-height:120px;"></textarea>
     <div style="font-size:0.78rem; color:var(--text2); opacity:0.6; margin-bottom:20px;" id="note-detail-date"></div>
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeNoteDetail()">Kapat</button>
+      <button class="modal-btn cancel" id="note-detail-edit" style="display:inline-block;">✏️ Düzenle</button>
+      <button class="modal-btn confirm" id="note-detail-save" style="display:none; background: var(--grad4);">✅ Kaydet</button>
       <button class="modal-btn confirm" id="note-detail-delete" style="background: var(--grad2);">🗑 Sil</button>
     </div>
   </div>
