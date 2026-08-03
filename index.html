@@ -14,278 +14,129 @@
       --border: rgba(255,255,255,0.08);
       --text: #f0f0f8;
       --text2: #8888aa;
+      --accent: #667eea;
       --grad1: linear-gradient(135deg, #667eea, #764ba2);
       --grad2: linear-gradient(135deg, #f093fb, #f5576c);
       --grad3: linear-gradient(135deg, #4facfe, #00f2fe);
       --grad4: linear-gradient(135deg, #43e97b, #38f9d7);
-      --grad5: linear-gradient(135deg, #fa709a, #fee140);
-      --accent: #667eea;
       --radius: 16px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Space Grotesk', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; transition: background 0.4s; }
 
-    /* ========== AUTH ========== */
     #auth-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
       background: radial-gradient(ellipse at 20% 50%, rgba(102,126,234,0.15) 0%, transparent 60%),
-                  radial-gradient(ellipse at 80% 20%, rgba(240,147,251,0.1) 0%, transparent 50%),
-                  var(--bg);
+                  radial-gradient(ellipse at 80% 20%, rgba(240,147,251,0.1) 0%, transparent 50%), var(--bg);
     }
-    .auth-box {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 48px 40px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-    }
-    .auth-logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 2rem;
-      font-weight: 800;
-      background: var(--grad1);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
-    }
+    .auth-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 24px; padding: 48px 40px; width: 100%; max-width: 420px; box-shadow: 0 40px 80px rgba(0,0,0,0.5); }
+    .auth-logo { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; background: var(--grad1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
     .auth-sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 32px; }
     .auth-tabs { display: flex; gap: 8px; margin-bottom: 28px; }
-    .auth-tab {
-      flex: 1; padding: 10px; border: 1px solid var(--border);
-      border-radius: 10px; background: transparent; color: var(--text2);
-      cursor: pointer; font-family: inherit; font-size: 0.9rem; transition: all 0.2s;
-    }
-    .auth-tab.active {
-      background: var(--grad1); border-color: transparent; color: white; font-weight: 600;
-    }
+    .auth-tab { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: transparent; color: var(--text2); cursor: pointer; font-family: inherit; font-size: 0.9rem; transition: all 0.2s; }
+    .auth-tab.active { background: var(--grad1); border-color: transparent; color: white; font-weight: 600; }
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 6px; }
-    .form-group input {
-      width: 100%; padding: 12px 16px;
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: 10px; color: var(--text); font-family: inherit;
-      font-size: 0.95rem; outline: none; transition: border-color 0.2s;
-    }
+    .form-group input { width: 100%; padding: 12px 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
     .form-group input:focus { border-color: var(--accent); }
-    .btn-primary {
-      width: 100%; padding: 14px;
-      background: var(--grad1); border: none; border-radius: 12px;
-      color: white; font-family: inherit; font-size: 1rem; font-weight: 600;
-      cursor: pointer; transition: opacity 0.2s, transform 0.1s;
-      margin-top: 8px;
-    }
-    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-primary:active { transform: translateY(0); }
+    .pin-input { letter-spacing: 0.5em; font-size: 1.4rem !important; text-align: center; }
+    .btn-primary { width: 100%; padding: 14px; background: var(--grad1); border: none; border-radius: 12px; color: white; font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 8px; }
+    .btn-primary:hover { opacity: 0.9; }
     .auth-msg { font-size: 0.85rem; margin-top: 12px; text-align: center; min-height: 20px; }
     .auth-msg.error { color: #f5576c; }
     .auth-msg.success { color: #43e97b; }
+    .auth-hint { font-size: 0.78rem; color: var(--text2); margin-top: 14px; text-align: center; line-height: 1.6; }
 
-    /* ========== APP ========== */
     #app-screen { display: none; min-height: 100vh; }
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 20px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; background: var(--grad1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-user { font-size: 0.82rem; color: var(--text2); }
+    .nav-icon-btn { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .nav-icon-btn:hover { border-color: var(--accent); }
 
-    /* NAV */
-    .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(10,10,15,0.85); backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 24px; height: 64px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .nav-logo {
-      font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800;
-      background: var(--grad1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .nav-right { display: flex; align-items: center; gap: 12px; }
-    .nav-user { font-size: 0.85rem; color: var(--text2); }
-    .btn-logout {
-      padding: 7px 16px; background: transparent;
-      border: 1px solid var(--border); border-radius: 8px;
-      color: var(--text2); cursor: pointer; font-family: inherit;
-      font-size: 0.82rem; transition: all 0.2s;
-    }
-    .btn-logout:hover { border-color: #f5576c; color: #f5576c; }
+    .theme-panel { position: fixed; top: 72px; right: 12px; z-index: 200; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px; width: 250px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); display: none; }
+    .theme-panel.open { display: block; }
+    .theme-panel-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 14px; }
+    .theme-section { font-size: 0.75rem; color: var(--text2); margin: 12px 0 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .preset-btn { width: 100%; aspect-ratio: 1; border-radius: 10px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.2s, border-color 0.2s; display: flex; align-items: center; justify-content: center; }
+    .preset-btn:hover { transform: scale(1.08); }
+    .preset-btn.active { border-color: white; transform: scale(1.08); }
+    .preset-btn span { font-size: 0.52rem; color: rgba(255,255,255,0.6); text-align: center; line-height: 1.3; pointer-events: none; }
+    .color-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .color-row label { font-size: 0.82rem; flex: 1; color: var(--text2); }
+    .color-row input[type=color] { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: none; padding: 2px; }
+    .btn-reset { width: 100%; padding: 8px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text2); cursor: pointer; font-family: inherit; font-size: 0.82rem; margin-top: 8px; transition: all 0.2s; }
+    .btn-reset:hover { border-color: var(--accent); color: var(--text); }
 
-    /* TABS */
-    .tab-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border);
-      display: flex; padding: 8px 0 12px;
-    }
-    .tab-btn {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      gap: 4px; background: none; border: none; color: var(--text2);
-      cursor: pointer; font-family: inherit; font-size: 0.7rem;
-      transition: color 0.2s; padding: 6px 0;
-    }
+    .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding: 8px 0 12px; }
+    .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: var(--text2); cursor: pointer; font-family: inherit; font-size: 0.7rem; transition: color 0.2s; padding: 6px 0; }
     .tab-btn.active { color: var(--accent); }
     .tab-btn svg { width: 22px; height: 22px; }
-    .tab-btn .tab-dot {
-      width: 4px; height: 4px; border-radius: 50%;
-      background: var(--accent); opacity: 0;
-      transition: opacity 0.2s;
-    }
+    .tab-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: 0; transition: opacity 0.2s; }
     .tab-btn.active .tab-dot { opacity: 1; }
 
-    /* MAIN CONTENT */
     .main { padding: 80px 20px 100px; max-width: 680px; margin: 0 auto; }
-
-    /* PAGE */
     .page { display: none; }
     .page.active { display: block; }
-    .page-title {
-      font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800;
-      margin-bottom: 24px;
-    }
+    .page-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; margin-bottom: 24px; }
 
-    /* CARDS */
-    .card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; transition: transform 0.2s, box-shadow 0.2s; backdrop-filter: blur(10px); }
     .card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
-
-    /* ADD FORM */
-    .add-form {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px; margin-bottom: 24px;
-    }
+    .add-form { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; backdrop-filter: blur(10px); }
     .add-form h3 { font-size: 1rem; margin-bottom: 16px; color: var(--text2); }
-    .input-field {
-      width: 100%; padding: 12px 14px;
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: 10px; color: var(--text); font-family: inherit;
-      font-size: 0.95rem; outline: none; margin-bottom: 10px;
-      transition: border-color 0.2s; resize: vertical;
-    }
+    .input-field { width: 100%; padding: 12px 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none; margin-bottom: 10px; transition: border-color 0.2s; resize: vertical; }
     .input-field:focus { border-color: var(--accent); }
     textarea.input-field { min-height: 100px; }
-    .btn-add {
-      padding: 10px 20px; border: none; border-radius: 10px;
-      color: white; font-family: inherit; font-size: 0.9rem;
-      font-weight: 600; cursor: pointer; transition: opacity 0.2s;
-    }
+    .btn-add { padding: 10px 20px; border: none; border-radius: 10px; color: white; font-family: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
     .btn-add:hover { opacity: 0.85; }
 
-    /* NOTE CARD */
-    .note-card-img {
-      width: 100%; max-height: 200px; object-fit: cover;
-      border-radius: 10px; margin-bottom: 12px;
-    }
+    .note-card-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 12px; }
     .note-title { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
     .note-content { font-size: 0.88rem; color: var(--text2); line-height: 1.6; }
     .note-date { font-size: 0.75rem; color: var(--text2); margin-top: 10px; opacity: 0.6; }
     .note-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .btn-delete {
-      padding: 6px 14px; background: rgba(245,87,108,0.1);
-      border: 1px solid rgba(245,87,108,0.3); border-radius: 8px;
-      color: #f5576c; cursor: pointer; font-family: inherit;
-      font-size: 0.8rem; transition: all 0.2s;
-    }
+    .btn-delete { padding: 6px 14px; background: rgba(245,87,108,0.1); border: 1px solid rgba(245,87,108,0.3); border-radius: 8px; color: #f5576c; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: all 0.2s; }
     .btn-delete:hover { background: rgba(245,87,108,0.2); }
 
-    /* GRADIENT TAGS */
-    .grad-tag {
-      display: inline-block; padding: 3px 10px; border-radius: 20px;
-      font-size: 0.75rem; font-weight: 600; color: white;
-    }
-
-    /* ROUTINE */
-    .routine-item {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px 0; border-bottom: 1px solid var(--border);
-    }
+    .grad-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: white; }
+    .routine-item { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .routine-item:last-child { border-bottom: none; }
-    .routine-check {
-      width: 26px; height: 26px; border-radius: 8px;
-      border: 2px solid var(--border); background: transparent;
-      cursor: pointer; display: flex; align-items: center;
-      justify-content: center; transition: all 0.2s; flex-shrink: 0;
-    }
-    .routine-check.done {
-      background: var(--grad4); border-color: transparent;
-    }
+    .routine-check { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--border); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .routine-check.done { background: var(--grad4); border-color: transparent; }
     .routine-check.done::after { content: '✓'; color: white; font-size: 14px; font-weight: 700; }
     .routine-name { flex: 1; font-size: 0.95rem; }
     .routine-name.done { text-decoration: line-through; color: var(--text2); }
 
-    /* WEEKLY VIEW */
-    .week-grid {
-      display: grid; grid-template-columns: repeat(7, 1fr);
-      gap: 6px; margin-top: 10px;
-    }
+    .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
     .week-day { text-align: center; }
     .week-day-label { font-size: 0.65rem; color: var(--text2); margin-bottom: 4px; }
-    .week-day-dot {
-      width: 28px; height: 28px; border-radius: 8px;
-      margin: 0 auto; display: flex; align-items: center;
-      justify-content: center; font-size: 0.7rem;
-    }
+    .week-day-dot { width: 28px; height: 28px; border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
     .week-day-dot.done { background: var(--grad4); }
-    .week-day-dot.missed { background: var(--bg3); color: var(--text2); }
+    .week-day-dot.missed { background: rgba(0,0,0,0.3); color: var(--text2); }
     .week-day-dot.today { border: 2px solid var(--accent); }
 
-    /* STATS */
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-    .stat-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px; text-align: center;
-    }
-    .stat-number {
-      font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
-      background: var(--grad3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
+    .stat-card { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; backdrop-filter: blur(10px); }
+    .stat-number { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; background: var(--grad3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .stat-label { font-size: 0.8rem; color: var(--text2); margin-top: 4px; }
 
-    /* EMPTY STATE */
     .empty { text-align: center; padding: 48px 20px; color: var(--text2); }
     .empty-icon { font-size: 3rem; margin-bottom: 12px; }
     .empty-text { font-size: 0.9rem; }
-
-    /* FILE INPUT */
-    .file-label {
-      display: inline-block; padding: 9px 18px;
-      background: var(--bg3); border: 1px dashed var(--border);
-      border-radius: 10px; cursor: pointer; font-size: 0.85rem;
-      color: var(--text2); transition: border-color 0.2s; margin-bottom: 10px;
-    }
+    .file-label { display: inline-block; padding: 9px 18px; background: rgba(0,0,0,0.3); border: 1px dashed var(--border); border-radius: 10px; cursor: pointer; font-size: 0.85rem; color: var(--text2); transition: border-color 0.2s; margin-bottom: 10px; }
     .file-label:hover { border-color: var(--accent); color: var(--text); }
     #file-input { display: none; }
-
-    /* VIEW TOGGLE */
     .view-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
-    .view-btn {
-      padding: 8px 18px; border-radius: 10px; border: 1px solid var(--border);
-      background: transparent; color: var(--text2); cursor: pointer;
-      font-family: inherit; font-size: 0.85rem; transition: all 0.2s;
-    }
+    .view-btn { padding: 8px 18px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; font-family: inherit; font-size: 0.85rem; transition: all 0.2s; }
     .view-btn.active { background: var(--grad1); border-color: transparent; color: white; font-weight: 600; }
-
-    /* LOADING */
     .loading { text-align: center; padding: 40px; color: var(--text2); font-size: 0.9rem; }
-
-    @media (max-width: 480px) {
-      .auth-box { padding: 32px 24px; }
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-    }
+    @media (max-width: 480px) { .auth-box { padding: 32px 24px; } }
   </style>
 </head>
 <body>
 
-<!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">Notsify</div>
@@ -295,51 +146,44 @@
       <button class="auth-tab" onclick="switchTab('register')">Kayıt Ol</button>
     </div>
     <div id="login-form">
-      <div class="form-group">
-        <label>E-posta</label>
-        <input type="email" id="login-email" placeholder="email@example.com"/>
-      </div>
-      <div class="form-group">
-        <label>Şifre</label>
-        <input type="password" id="login-password" placeholder="••••••••"/>
-      </div>
+      <div class="form-group"><label>Kullanıcı Adı</label><input type="text" id="login-username" placeholder="kullanici_adi"/></div>
+      <div class="form-group"><label>4 Haneli PIN</label><input type="password" id="login-pin" class="pin-input" placeholder="••••" maxlength="4" inputmode="numeric"/></div>
       <button class="btn-primary" onclick="login()">Giriş Yap</button>
     </div>
     <div id="register-form" style="display:none">
-      <div class="form-group">
-        <label>Kullanıcı Adı</label>
-        <input type="text" id="reg-username" placeholder="kullanici_adi"/>
-      </div>
-      <div class="form-group">
-        <label>Ad Soyad</label>
-        <input type="text" id="reg-fullname" placeholder="Ad Soyad"/>
-      </div>
-      <div class="form-group">
-        <label>E-posta</label>
-        <input type="email" id="reg-email" placeholder="email@example.com"/>
-      </div>
-      <div class="form-group">
-        <label>Şifre</label>
-        <input type="password" id="reg-password" placeholder="En az 6 karakter"/>
-      </div>
+      <div class="form-group"><label>Kullanıcı Adı</label><input type="text" id="reg-username" placeholder="kullanici_adi"/></div>
+      <div class="form-group"><label>4 Haneli PIN</label><input type="password" id="reg-pin" class="pin-input" placeholder="••••" maxlength="4" inputmode="numeric"/></div>
+      <div class="form-group"><label>PIN Tekrar</label><input type="password" id="reg-pin2" class="pin-input" placeholder="••••" maxlength="4" inputmode="numeric"/></div>
       <button class="btn-primary" onclick="register()">Kayıt Ol</button>
+      <div class="auth-hint">Kullanıcı adın ve PIN'in sadece sende kalır.<br/>Kimseyle paylaşma! 🔒</div>
     </div>
     <div class="auth-msg" id="auth-msg"></div>
   </div>
 </div>
 
-<!-- APP SCREEN -->
 <div id="app-screen">
   <nav class="nav">
     <div class="nav-logo">Notsify</div>
     <div class="nav-right">
       <span class="nav-user" id="nav-username"></span>
-      <button class="btn-logout" onclick="logout()">Çıkış</button>
+      <button class="nav-icon-btn" onclick="toggleThemePanel()" title="Tema">🎨</button>
+      <button class="nav-icon-btn" onclick="logout()" title="Çıkış">👤</button>
     </div>
   </nav>
 
+  <div class="theme-panel" id="theme-panel">
+    <div class="theme-panel-title">🎨 Arka Plan Rengi</div>
+    <div class="theme-section">Hazır Temalar</div>
+    <div class="preset-grid" id="preset-grid"></div>
+    <div class="theme-section">Özel Renk</div>
+    <div class="color-row">
+      <label>Arka Plan Rengi Seç</label>
+      <input type="color" id="color-bg" value="#0a0a0f" oninput="applyCustomBg(this.value)"/>
+    </div>
+    <button class="btn-reset" onclick="resetTheme()">↺ Varsayılana Dön</button>
+  </div>
+
   <div class="main">
-    <!-- NOTES PAGE -->
     <div class="page active" id="page-notes">
       <div class="page-title">📝 Notlarım</div>
       <div class="add-form">
@@ -354,7 +198,6 @@
       <div id="notes-list"><div class="loading">Yükleniyor...</div></div>
     </div>
 
-    <!-- ROUTINES PAGE -->
     <div class="page" id="page-routines">
       <div class="page-title">✅ Rutinlerim</div>
       <div class="view-toggle">
@@ -369,26 +212,13 @@
       <div id="routines-list"><div class="loading">Yükleniyor...</div></div>
     </div>
 
-    <!-- STATS PAGE -->
     <div class="page" id="page-stats">
       <div class="page-title">📊 İstatistikler</div>
-      <div class="stats-grid" id="stats-grid">
-        <div class="stat-card">
-          <div class="stat-number" id="stat-notes">-</div>
-          <div class="stat-label">Toplam Not</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="stat-routines">-</div>
-          <div class="stat-label">Aktif Rutin</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="stat-today">-</div>
-          <div class="stat-label">Bugün Tamamlanan</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="stat-week">-</div>
-          <div class="stat-label">Bu Hafta %</div>
-        </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-number" id="stat-notes">-</div><div class="stat-label">Toplam Not</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat-routines">-</div><div class="stat-label">Aktif Rutin</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat-today">-</div><div class="stat-label">Bugün Tamamlanan</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat-week">-</div><div class="stat-label">Bu Hafta %</div></div>
       </div>
       <div class="card">
         <div style="font-weight:600; margin-bottom:16px;">Bu Haftanın Özeti</div>
@@ -397,46 +227,114 @@
     </div>
   </div>
 
-  <!-- TAB BAR -->
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchPage('notes', this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Notlar
-      <div class="tab-dot"></div>
+      Notlar<div class="tab-dot"></div>
     </button>
     <button class="tab-btn" onclick="switchPage('routines', this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Rutinler
-      <div class="tab-dot"></div>
+      Rutinler<div class="tab-dot"></div>
     </button>
     <button class="tab-btn" onclick="switchPage('stats', this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      İstatistik
-      <div class="tab-dot"></div>
+      İstatistik<div class="tab-dot"></div>
     </button>
   </div>
 </div>
 
 <script>
-  // ===== CONFIG =====
   const SUPABASE_URL = 'https://ehyvgpmaxifnjgwiamfc.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeXZncG1heGlmbmpnd2lhbWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMDEzMDUsImV4cCI6MjA5Mjc3NzMwNX0.HyjYzcz64-4Eczxo1OhRjqXtTBr6DqBFpvrTHGPCNrI';
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let currentUser = null;
-  let currentProfile = null;
   let routineView = 'daily';
   let allRoutines = [];
   let selectedFile = null;
+
+  // ===== THEME =====
+  const PRESETS = [
+    { name: 'Siyah', bg: '#0a0a0f', bg2: '#12121a', bg3: '#1a1a26' },
+    { name: 'Koyu Mor', bg: '#0d0a1a', bg2: '#160f2a', bg3: '#1e1535' },
+    { name: 'Lacivert', bg: '#060a14', bg2: '#0d1424', bg3: '#121c30' },
+    { name: 'Koyu Yeşil', bg: '#060f0a', bg2: '#0d1a10', bg3: '#122016' },
+    { name: 'Koyu Kahve', bg: '#0f0a06', bg2: '#1a1008', bg3: '#22160a' },
+    { name: 'Koyu Kırmızı', bg: '#140606', bg2: '#220a0a', bg3: '#2c0e0e' },
+    { name: 'Gece Mavisi', bg: '#05080f', bg2: '#0a1020', bg3: '#0f1828' },
+    { name: 'Antrasit', bg: '#0c0c0c', bg2: '#161616', bg3: '#202020' },
+  ];
+
+  function initTheme() {
+    const saved = localStorage.getItem('notsify_theme');
+    if (saved) applyThemeObj(JSON.parse(saved));
+    renderPresets();
+    document.getElementById('color-bg').value = getSavedTheme().bg;
+  }
+
+  function getSavedTheme() {
+    const saved = localStorage.getItem('notsify_theme');
+    return saved ? JSON.parse(saved) : PRESETS[0];
+  }
+
+  function renderPresets() {
+    const cur = getSavedTheme();
+    document.getElementById('preset-grid').innerHTML = PRESETS.map((p, i) => `
+      <button class="preset-btn ${p.bg === cur.bg ? 'active' : ''}" style="background:${p.bg};" onclick="applyPreset(${i})" title="${p.name}">
+        <span>${p.name}</span>
+      </button>`).join('');
+  }
+
+  function applyPreset(i) {
+    const p = PRESETS[i];
+    applyThemeObj(p);
+    localStorage.setItem('notsify_theme', JSON.stringify(p));
+    document.getElementById('color-bg').value = p.bg;
+    renderPresets();
+  }
+
+  function lighten(hex, amount) {
+    const r = Math.min(255, parseInt(hex.slice(1,3),16) + amount);
+    const g = Math.min(255, parseInt(hex.slice(3,5),16) + amount);
+    const b = Math.min(255, parseInt(hex.slice(5,7),16) + amount);
+    return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+  }
+
+  function applyCustomBg(val) {
+    const t = { bg: val, bg2: lighten(val, 8), bg3: lighten(val, 16) };
+    applyThemeObj(t);
+    localStorage.setItem('notsify_theme', JSON.stringify(t));
+    renderPresets();
+  }
+
+  function applyThemeObj(t) {
+    document.documentElement.style.setProperty('--bg', t.bg);
+    document.documentElement.style.setProperty('--bg2', t.bg2);
+    document.documentElement.style.setProperty('--bg3', t.bg3);
+  }
+
+  function resetTheme() {
+    applyThemeObj(PRESETS[0]);
+    localStorage.setItem('notsify_theme', JSON.stringify(PRESETS[0]));
+    document.getElementById('color-bg').value = PRESETS[0].bg;
+    renderPresets();
+  }
+
+  function toggleThemePanel() {
+    document.getElementById('theme-panel').classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const panel = document.getElementById('theme-panel');
+    if (panel && !panel.contains(e.target) && !e.target.closest('.nav-icon-btn')) panel.classList.remove('open');
+  });
 
   // ===== AUTH =====
   function switchTab(tab) {
     document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
     document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
-    document.querySelectorAll('.auth-tab').forEach((t, i) => {
-      t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
-    });
+    document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
     document.getElementById('auth-msg').textContent = '';
   }
 
@@ -447,50 +345,60 @@
   }
 
   async function login() {
-    const email = document.getElementById('login-email').value.trim();
-    const pass = document.getElementById('login-password').value;
-    if (!email || !pass) return showMsg('E-posta ve şifre giriniz.', 'error');
-    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-    if (error) return showMsg('Hata: ' + error.message, 'error');
+    const username = document.getElementById('login-username').value.trim().toLowerCase();
+    const pin = document.getElementById('login-pin').value.trim();
+    if (!username || !pin) return showMsg('Kullanıcı adı ve PIN giriniz.', 'error');
+    if (pin.length !== 4 || !/^\d+$/.test(pin)) return showMsg('PIN 4 haneli rakam olmalı.', 'error');
+    const { data, error } = await sb.from('users').select('*').eq('username', username).eq('pin', pin).single();
+    if (error || !data) return showMsg('Kullanıcı adı veya PIN hatalı.', 'error');
+    currentUser = data;
+    localStorage.setItem('notsify_user', JSON.stringify(data));
+    startApp(data);
   }
 
   async function register() {
-    const username = document.getElementById('reg-username').value.trim();
-    const fullname = document.getElementById('reg-fullname').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const pass = document.getElementById('reg-password').value;
-    if (!username || !email || !pass) return showMsg('Tüm alanları doldurunuz.', 'error');
-    if (pass.length < 6) return showMsg('Şifre en az 6 karakter olmalı.', 'error');
-    const { error } = await sb.auth.signUp({
-      email, password: pass,
-      options: { data: { username, full_name: fullname } }
-    });
+    const username = document.getElementById('reg-username').value.trim().toLowerCase();
+    const pin = document.getElementById('reg-pin').value.trim();
+    const pin2 = document.getElementById('reg-pin2').value.trim();
+    if (!username || !pin) return showMsg('Tüm alanları doldurunuz.', 'error');
+    if (pin.length !== 4 || !/^\d+$/.test(pin)) return showMsg('PIN 4 haneli rakam olmalı.', 'error');
+    if (pin !== pin2) return showMsg('PIN\'ler eşleşmiyor.', 'error');
+    if (username.length < 2) return showMsg('Kullanıcı adı en az 2 karakter olmalı.', 'error');
+    const { data: existing } = await sb.from('users').select('id').eq('username', username).single();
+    if (existing) return showMsg('Bu kullanıcı adı zaten alınmış.', 'error');
+    const { data, error } = await sb.from('users').insert({ username, pin }).select().single();
     if (error) return showMsg('Hata: ' + error.message, 'error');
-    showMsg('Kayıt başarılı! Giriş yapılıyor...', 'success');
+    currentUser = data;
+    localStorage.setItem('notsify_user', JSON.stringify(data));
+    startApp(data);
   }
 
-  async function logout() {
-    await sb.auth.signOut();
-    document.getElementById('app-screen').style.display = 'none';
-    document.getElementById('auth-screen').style.display = 'flex';
-    currentUser = null; currentProfile = null;
+  function startApp(user) {
+    currentUser = user;
+    document.getElementById('nav-username').textContent = user.username;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    initTheme();
+    loadNotes();
+    loadRoutines();
   }
 
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (session?.user) {
-      currentUser = session.user;
-      await loadProfile();
-      document.getElementById('auth-screen').style.display = 'none';
-      document.getElementById('app-screen').style.display = 'block';
-      loadNotes(); loadRoutines(); loadStats();
-    }
-  });
-
-  async function loadProfile() {
-    const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-    currentProfile = data;
-    document.getElementById('nav-username').textContent = data?.username || currentUser.email;
+  function logout() {
+    showModal('👤', 'Çıkış Yap', 'Hesabından çıkmak istediğine emin misin?', () => {
+      localStorage.removeItem('notsify_user');
+      currentUser = null;
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-pin').value = '';
+    });
   }
+
+  window.onload = function() {
+    const saved = localStorage.getItem('notsify_user');
+    if (saved) startApp(JSON.parse(saved));
+    else initTheme();
+  };
 
   // ===== NAVIGATION =====
   function switchPage(page, btn) {
@@ -504,10 +412,9 @@
   // ===== NOTES =====
   function previewFile(input) {
     selectedFile = input.files[0];
-    const preview = document.getElementById('file-preview');
     if (selectedFile) {
       const url = URL.createObjectURL(selectedFile);
-      preview.innerHTML = `<img src="${url}" style="max-height:120px; border-radius:10px; margin-bottom:10px;"/>`;
+      document.getElementById('file-preview').innerHTML = `<img src="${url}" style="max-height:120px; border-radius:10px; margin-bottom:10px;"/>`;
     }
   }
 
@@ -548,25 +455,21 @@
         <div class="note-title">${note.title}</div>
         ${note.content ? `<div class="note-content">${note.content}</div>` : ''}
         <div class="note-date">${new Date(note.created_at).toLocaleDateString('tr-TR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
-        <div class="note-actions">
-          <button class="btn-delete" onclick="deleteNote('${note.id}')">🗑 Sil</button>
-        </div>
-      </div>
-    `).join('');
+        <div class="note-actions"><button class="btn-delete" onclick="deleteNote('${note.id}')">🗑 Sil</button></div>
+      </div>`).join('');
   }
 
   async function deleteNote(id) {
-    if (!confirm('Bu notu silmek istediğine emin misin?')) return;
-    await sb.from('notes').delete().eq('id', id);
-    loadNotes();
+    showModal('🗑', 'Notu Sil', 'Bu notu silmek istediğine emin misin?', async () => {
+      await sb.from('notes').delete().eq('id', id);
+      loadNotes();
+    });
   }
 
   // ===== ROUTINES =====
   function setRoutineView(view) {
     routineView = view;
-    document.querySelectorAll('.view-btn').forEach((b, i) => {
-      b.classList.toggle('active', (i === 0 && view === 'daily') || (i === 1 && view === 'weekly'));
-    });
+    document.querySelectorAll('.view-btn').forEach((b, i) => b.classList.toggle('active', (i===0&&view==='daily')||(i===1&&view==='weekly')));
     renderRoutines();
   }
 
@@ -591,64 +494,48 @@
       list.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Henüz rutin yok. İlk rutinini ekle!</div></div>`;
       return;
     }
-    if (routineView === 'daily') {
-      await renderDailyRoutines(list);
-    } else {
-      await renderWeeklyRoutines(list);
-    }
+    if (routineView === 'daily') await renderDailyRoutines(list);
+    else await renderWeeklyRoutines(list);
   }
 
   async function renderDailyRoutines(list) {
     const today = new Date().toISOString().split('T')[0];
     const ids = allRoutines.map(r => r.id);
-    const { data: logs } = await sb.from('routine_logs').select('*')
-      .in('routine_id', ids).eq('date', today);
+    const { data: logs } = await sb.from('routine_logs').select('*').in('routine_id', ids).eq('date', today);
     const doneMap = {};
     (logs || []).forEach(l => doneMap[l.routine_id] = { done: l.done, id: l.id });
-
     list.innerHTML = `<div class="card">${allRoutines.map(r => {
       const isDone = doneMap[r.id]?.done;
-      return `
-        <div class="routine-item">
-          <div class="routine-check ${isDone ? 'done' : ''}" onclick="toggleRoutine('${r.id}', ${isDone}, '${doneMap[r.id]?.id || ''}')"></div>
-          <div class="routine-name ${isDone ? 'done' : ''}">${r.name}</div>
-          <button class="btn-delete" onclick="deleteRoutine('${r.id}')">🗑</button>
-        </div>`;
+      return `<div class="routine-item">
+        <div class="routine-check ${isDone?'done':''}" onclick="toggleRoutine('${r.id}',${isDone},'${doneMap[r.id]?.id||''}')"></div>
+        <div class="routine-name ${isDone?'done':''}">${r.name}</div>
+        <button class="btn-delete" onclick="deleteRoutine('${r.id}')">🗑</button>
+      </div>`;
     }).join('')}</div>`;
   }
 
   async function renderWeeklyRoutines(list) {
-    const days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+    const days = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
     const today = new Date();
     const weekDates = [];
-    const dow = (today.getDay() + 6) % 7;
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - dow + i);
-      weekDates.push(d.toISOString().split('T')[0]);
-    }
-    const ids = allRoutines.map(r => r.id);
-    const { data: logs } = await sb.from('routine_logs').select('*')
-      .in('routine_id', ids).in('date', weekDates);
+    const dow = (today.getDay()+6)%7;
+    for (let i=0;i<7;i++) { const d=new Date(today); d.setDate(today.getDate()-dow+i); weekDates.push(d.toISOString().split('T')[0]); }
+    const ids = allRoutines.map(r=>r.id);
+    const { data: logs } = await sb.from('routine_logs').select('*').in('routine_id',ids).in('date',weekDates);
     const logMap = {};
-    (logs || []).forEach(l => { if (!logMap[l.routine_id]) logMap[l.routine_id] = {}; logMap[l.routine_id][l.date] = l.done; });
+    (logs||[]).forEach(l=>{if(!logMap[l.routine_id])logMap[l.routine_id]={};logMap[l.routine_id][l.date]=l.done;});
     const todayStr = today.toISOString().split('T')[0];
-
     list.innerHTML = allRoutines.map(r => {
-      const doneDays = weekDates.filter(d => logMap[r.id]?.[d]).length;
+      const doneDays = weekDates.filter(d=>logMap[r.id]?.[d]).length;
       return `<div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <span style="font-weight:600">${r.name}</span>
           <span class="grad-tag" style="background:var(--grad4)">${doneDays}/7</span>
         </div>
         <div class="week-grid">
-          ${weekDates.map((d, i) => {
-            const done = logMap[r.id]?.[d];
-            const isToday = d === todayStr;
-            return `<div class="week-day">
-              <div class="week-day-label">${days[i]}</div>
-              <div class="week-day-dot ${done ? 'done' : 'missed'} ${isToday ? 'today' : ''}">${done ? '✓' : ''}</div>
-            </div>`;
+          ${weekDates.map((d,i)=>{
+            const done=logMap[r.id]?.[d]; const isToday=d===todayStr;
+            return `<div class="week-day"><div class="week-day-label">${days[i]}</div><div class="week-day-dot ${done?'done':'missed'} ${isToday?'today':''}">${done?'✓':''}</div></div>`;
           }).join('')}
         </div>
       </div>`;
@@ -657,44 +544,54 @@
 
   async function toggleRoutine(routineId, isDone, logId) {
     const today = new Date().toISOString().split('T')[0];
-    if (logId) {
-      await sb.from('routine_logs').update({ done: !isDone }).eq('id', logId);
-    } else {
-      await sb.from('routine_logs').insert({ routine_id: routineId, user_id: currentUser.id, date: today, done: true });
-    }
+    if (logId) await sb.from('routine_logs').update({done:!isDone}).eq('id',logId);
+    else await sb.from('routine_logs').insert({routine_id:routineId,user_id:currentUser.id,date:today,done:true});
     loadRoutines();
   }
 
   async function deleteRoutine(id) {
-    if (!confirm('Bu rutini silmek istediğine emin misin?')) return;
-    await sb.from('routines').delete().eq('id', id);
-    loadRoutines();
+    showModal('🗑', 'Rutini Sil', 'Bu rutini silmek istediğine emin misin?', async () => {
+      await sb.from('routines').delete().eq('id', id);
+      loadRoutines();
+    });
   }
 
   // ===== STATS =====
   async function loadStats() {
     const today = new Date().toISOString().split('T')[0];
-    const dow = (new Date().getDay() + 6) % 7;
-    const weekStart = new Date(); weekStart.setDate(new Date().getDate() - dow);
+    const dow = (new Date().getDay()+6)%7;
+    const weekStart = new Date(); weekStart.setDate(new Date().getDate()-dow);
     const weekStartStr = weekStart.toISOString().split('T')[0];
-
-    const [{ count: noteCount }, { data: routines }] = await Promise.all([
-      sb.from('notes').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id),
-      sb.from('routines').select('*').eq('user_id', currentUser.id)
+    const [{count:noteCount},{data:routines}] = await Promise.all([
+      sb.from('notes').select('*',{count:'exact',head:true}).eq('user_id',currentUser.id),
+      sb.from('routines').select('*').eq('user_id',currentUser.id)
     ]);
-
-    document.getElementById('stat-notes').textContent = noteCount || 0;
-    document.getElementById('stat-routines').textContent = routines?.length || 0;
-
+    document.getElementById('stat-notes').textContent = noteCount||0;
+    document.getElementById('stat-routines').textContent = routines?.length||0;
     if (routines?.length) {
-      const ids = routines.map(r => r.id);
-      const { data: todayLogs } = await sb.from('routine_logs').select('*').in('routine_id', ids).eq('date', today).eq('done', true);
-      const { data: weekLogs } = await sb.from('routine_logs').select('*').in('routine_id', ids).gte('date', weekStartStr).eq('done', true);
-      document.getElementById('stat-today').textContent = todayLogs?.length || 0;
-      const maxWeek = routines.length * 7;
-      const pct = maxWeek > 0 ? Math.round(((weekLogs?.length || 0) / maxWeek) * 100) : 0;
-      document.getElementById('stat-week').textContent = pct + '%';
-      renderWeeklySummary(routines, weekLogs || [], weekStartStr);
+      const ids = routines.map(r=>r.id);
+      const [{data:todayLogs},{data:weekLogs}] = await Promise.all([
+        sb.from('routine_logs').select('*').in('routine_id',ids).eq('date',today).eq('done',true),
+        sb.from('routine_logs').select('*').in('routine_id',ids).gte('date',weekStartStr).eq('done',true)
+      ]);
+      document.getElementById('stat-today').textContent = todayLogs?.length||0;
+      const pct = Math.round(((weekLogs?.length||0)/(routines.length*7))*100);
+      document.getElementById('stat-week').textContent = pct+'%';
+      const logMap = {};
+      (weekLogs||[]).forEach(l=>{if(!logMap[l.routine_id])logMap[l.routine_id]=0;logMap[l.routine_id]++;});
+      document.getElementById('weekly-summary').innerHTML = routines.map(r=>{
+        const count=logMap[r.id]||0; const p=Math.round((count/7)*100);
+        const color=p>=70?'var(--grad4)':p>=40?'var(--grad3)':'var(--grad2)';
+        return `<div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:0.9rem">${r.name}</span>
+            <span style="font-size:0.8rem;color:var(--text2)">${count}/7 gün</span>
+          </div>
+          <div style="height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${p}%;background:${color};border-radius:4px;transition:width 0.5s;"></div>
+          </div>
+        </div>`;
+      }).join('');
     } else {
       document.getElementById('stat-today').textContent = 0;
       document.getElementById('stat-week').textContent = '0%';
@@ -702,25 +599,40 @@
     }
   }
 
-  function renderWeeklySummary(routines, logs, weekStart) {
-    const logMap = {};
-    logs.forEach(l => { if (!logMap[l.routine_id]) logMap[l.routine_id] = 0; logMap[l.routine_id]++; });
-    const summary = document.getElementById('weekly-summary');
-    summary.innerHTML = routines.map(r => {
-      const count = logMap[r.id] || 0;
-      const pct = Math.round((count / 7) * 100);
-      const color = pct >= 70 ? 'var(--grad4)' : pct >= 40 ? 'var(--grad3)' : 'var(--grad2)';
-      return `<div style="margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <span style="font-size:0.9rem">${r.name}</span>
-          <span style="font-size:0.8rem;color:var(--text2)">${count}/7 gün</span>
-        </div>
-        <div style="height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:width 0.5s;"></div>
-        </div>
-      </div>`;
-    }).join('');
+  // ===== MODAL =====
+  let modalCallback = null;
+
+  function showModal(icon, title, text, onConfirm) {
+    document.getElementById('modal-icon').textContent = icon;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-text').textContent = text;
+    modalCallback = onConfirm;
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    modalCallback = null;
+  }
+
+  function confirmModal() {
+    if (modalCallback) modalCallback();
+    closeModal();
   }
 </script>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">🗑</div>
+    <div class="modal-title" id="modal-title">Emin misin?</div>
+    <div class="modal-text" id="modal-text">Bu işlem geri alınamaz.</div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal()">Vazgeç</button>
+      <button class="modal-btn confirm" onclick="confirmModal()">Evet, Sil</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
